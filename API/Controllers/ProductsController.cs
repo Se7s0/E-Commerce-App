@@ -6,6 +6,7 @@ using Infrastructure.Data;
 using Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Core.Interfaces;
 
 //controller for extracting the data from the db
 //the db will be the entity of products.cs, here we use code first
@@ -22,10 +23,11 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly StoreContext _context;
-        public ProductsController(StoreContext context)
+        private readonly IProductRepository _repo;
+        public ProductsController(IProductRepository repo)
         {
-            _context = context; 
+            _repo = repo;
+
         }
 
         [HttpGet]
@@ -38,13 +40,25 @@ namespace API.Controllers
             //an improvement to this method is making it async, HOW?
             //use a async jeyword in the method, add a Task to delegate the request until its finished, and use the ToListAsync
 
-            var products = await _context.Products.ToListAsync();
+            var products = await _repo.GetProductsAsync();
             return Ok(products);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id){
-            return await _context.Products.FindAsync(id);
+            return await _repo.GetProductByIDAsync(id);
+        }
+
+        [HttpGet("brands")]
+        public async Task<ActionResult<List<ProductBrand>>> GetProductBrands(){
+
+            return Ok(await _repo.GetProductBrandsAsync());
+        }
+
+        [HttpGet("types")]
+        public async Task<ActionResult<List<ProductBrand>>> GetProductTypes(){
+
+            return Ok(await _repo.GetProductTypesAsync());
         }
     }
 }
