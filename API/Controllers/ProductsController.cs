@@ -7,6 +7,9 @@ using Core.Entities;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Core.Interfaces;
+using Core.Specifications;
+using API.Dtos;
+using AutoMapper;
 
 //controller for extracting the data from the db
 //the db will be the entity of products.cs, here we use code first
@@ -23,16 +26,23 @@ namespace API.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly IProductRepository _repo;
-        public ProductsController(IProductRepository repo)
+        private readonly IGenericRepository<Product> _productsRepo;
+        private readonly IGenericRepository<ProductBrand> _productBrandRepo;
+        private readonly IGenericRepository<ProductType> _productTypeRepo;
+        private readonly IMapper _mapper;
+
+        public ProductsController(IGenericRepository<Product> productsRepo, 
+            IGenericRepository<ProductBrand> productBrandRepo, IGenericRepository<ProductType> productTypeRepo, IMapper mapper)
         {
-            _repo = repo;
-
+            _productBrandRepo = productBrandRepo;
+            _productsRepo = productsRepo;
+            _productTypeRepo = productTypeRepo;
+            _mapper = mapper;
         }
-
+ 
         [HttpGet]
         //make use of action results from ControllerBase, its an HTTP response status
-        public async Task<ActionResult<List<Product>>> GetProducts(){
+        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts(){
 
             //here we made use of out StoreContext DbSet property "Products"
             //ToList executes a select query from our db and store results in this var products variable
@@ -40,25 +50,33 @@ namespace API.Controllers
             //an improvement to this method is making it async, HOW?
             //use a async jeyword in the method, add a Task to delegate the request until its finished, and use the ToListAsync
 
-            var products = await _repo.GetProductsAsync();
-            return Ok(products);
-        }
+            //this method now has a spec and uses a generic repo, we created a spec and passed it to the function we specified
+            //ListAsync, which uses a local functtion ApplySpecification and TRACE, TRACE AGAIN IN CASE U FORGET how it works
 
+            var spec = new ProductsWithTypesAndBrandsSpecification();
+            var products = await _productsRepo.ListAsync(spec);
+            return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
+        }
+ 
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id){
-            return await _repo.GetProductByIDAsync(id);
+        //calls the constructor with the param
+        public async Task<ActionResult<ProductToReturnDto>> GetProduct(int id){
+
+            var spec = new ProductsWithTypesAndBrandsSpecification(id);
+            var product =  await _productsRepo.GetEntityWithSpec(spec);
+            return _mapper.Map<Product, ProductToReturnDto>(product);
         }
 
         [HttpGet("brands")]
         public async Task<ActionResult<List<ProductBrand>>> GetProductBrands(){
 
-            return Ok(await _repo.GetProductBrandsAsync());
+            return Ok(await _productBrandRepo.ListAllAsync());
         }
 
         [HttpGet("types")]
         public async Task<ActionResult<List<ProductBrand>>> GetProductTypes(){
 
-            return Ok(await _repo.GetProductTypesAsync());
+            return Ok(await _productTypeRepo.ListAllAsync());
         }
     }
 }

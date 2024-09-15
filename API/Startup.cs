@@ -1,3 +1,4 @@
+using API.Helpers;
 using Core.Interfaces;
 using Infrastructure.Data;
 using Microsoft.AspNetCore.Builder;
@@ -25,8 +26,15 @@ namespace API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAutoMapper(typeof(MappingProfiles));
+
             //choosing the lifetime, we have transient (method based mot request based) and sigleton(applkication based)
+            //here added the products repo to our services container 
             services.AddScoped<IProductRepository, ProductRepository>(); 
+
+            //here we added the generic repository to our services container, it is slightly different than the normal repo
+            services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));
+
             services.AddControllers();
             services.AddSwaggerGen(c =>
             {
@@ -48,7 +56,7 @@ namespace API
             app.UseHttpsRedirection();
 
             app.UseRouting();
-
+            app.UseStaticFiles();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

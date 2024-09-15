@@ -11,7 +11,6 @@ namespace Core.Entities
     {
         //naming convetion makes the int Id a primary key
         //we added values in the table here by using a query from the sqlite options
-        [Required]
         public string Name { get; set; }
         public string Description { get; set; }
         public decimal Price { get; set; }
