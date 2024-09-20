@@ -12,6 +12,7 @@ using API.Dtos;
 using AutoMapper;
 using API.Errors;
 using Microsoft.AspNetCore.Http;
+using API.Helpers;
 
 //controller for extracting the data from the db
 //the db will be the entity of products.cs, here we use code first
@@ -42,7 +43,10 @@ namespace API.Controllers
  
         [HttpGet]
         //make use of action results from ControllerBase, its an HTTP response status
-        public async Task<ActionResult<IReadOnlyList<ProductToReturnDto>>> GetProducts(){
+        public async Task<ActionResult<Pagination<ProductToReturnDto>>> GetProducts(
+            //the contoller is not able to automaticcaly bind the paramaters as we used an objedct, so we use a fromQuery attribute
+            //explicitylu bind from the query string : {{url}}/api/products?typeId=3&brandId=2
+            [FromQuery] ProductSpecParams productParams){
 
             //here we made use of out StoreContext DbSet property "Products"
             //ToList executes a select query from our db and store results in this var products variable
@@ -50,12 +54,19 @@ namespace API.Controllers
             //an improvement to this method is making it async, HOW?
             //use a async jeyword in the method, add a Task to delegate the request until its finished, and use the ToListAsync
 
-            //this method now has a spec and uses a generic repo, we created a spec and passed it to the function we specified
+            //this method now has a spec and uses a generic repo, we  created a spec and passed it to the function we specified
+            
+            //////******************///////////////////
             //ListAsync, which uses a local functtion ApplySpecification and TRACE, TRACE AGAIN IN CASE U FORGET how it works
-
-            var spec = new ProductsWithTypesAndBrandsSpecification();
+            //////******************///////////////////
+ 
+            var spec = new ProductsWithTypesAndBrandsSpecification(productParams);
             var products = await _productsRepo.ListAsync(spec);
-            return Ok(_mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products));
+            var countSpec = new ProductWithFiltersForCountSpecification(productParams);
+            var totalItems = await _productsRepo.CountAsync(countSpec);
+            var data = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
+
+            return Ok(new Pagination<ProductToReturnDto>(productParams.PageIndex, productParams.PageSize, totalItems, data));
         }
  
         [HttpGet("{id}")]
