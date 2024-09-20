@@ -21,7 +21,21 @@ namespace Infrastructure.Data
             // Apply criteria (filtering) if available in the specification
             if(spec.Criteria != null){
                 query = query.Where(spec.Criteria);
+            }            
+            
+            //after we applyinf them in the evaluator, we now need to catch the specs from the client
+            //we do this in the products controller
+            if(spec.OrderBy != null){
+                query = query.OrderBy(spec.OrderBy);
+            }           
+            if(spec.OrderByDescending != null){
+                query = query.OrderByDescending(spec.OrderByDescending);
             }
+            if(spec.IsPagingEnabled)
+            {
+                query = query.Skip(spec.Skip).Take(spec.Take);
+            }
+
 
             // Apply Includes (for eager loading) from the specification
             //The Aggregate method iterates through each Include expression and applies it to the query

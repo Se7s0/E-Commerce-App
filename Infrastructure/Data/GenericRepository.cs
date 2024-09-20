@@ -48,5 +48,10 @@ namespace Infrastructure.Data
             //IMPORTANT: when looking back at this code, trace it, starting from the static method in SpecificationEvalator.cs
             return SpecificationEvaluator<T>.GetQuery(_context.Set<T>().AsQueryable(), spec);
         }
+
+        public async Task<int> CountAsync(ISpecification<T> spec)
+        {
+            return await ApplySpecification(spec).CountAsync();
+        }
     }
 }
