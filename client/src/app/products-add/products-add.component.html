@@ -1,0 +1,40 @@
+<!-- src/app/products-add/products-add.component.html -->
+<div class="container">
+  <h2>Add New Product</h2>
+  <form [formGroup]="productForm" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label for="name">Name</label>
+      <input id="name" type="text" formControlName="name" class="form-control" placeholder="Enter product name" />
+      <div *ngIf="productForm.get('name').invalid && productForm.get('name').touched" class="text-danger">
+        Name is required and must be at least 3 characters
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <input id="description" type="text" formControlName="description" class="form-control" placeholder="Enter description" />
+    </div>
+
+    <div class="form-group">
+      <label for="price">Price</label>
+      <input id="price" type="number" formControlName="price" class="form-control" placeholder="Enter price" />
+    </div>
+
+    <div class="form-group">
+      <label for="pictureUrl">Picture URL</label>
+      <input id="pictureUrl" type="text" formControlName="pictureUrl" class="form-control" placeholder="Enter picture URL" />
+    </div>
+
+    <div class="form-group">
+      <label for="productType">Product Type</label>
+      <input id="productType" type="text" formControlName="productType" class="form-control" placeholder="Enter product type" />
+    </div>
+
+    <div class="form-group">
+      <label for="productBrand">Product Brand</label>
+      <input id="productBrand" type="text" formControlName="productBrand" class="form-control" placeholder="Enter product brand" />
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="!productForm.valid">Add Product</button>
+  </form>
+</div>

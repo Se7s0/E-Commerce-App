@@ -7,10 +7,13 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http'
 import { CoreModule } from './core/core.module';
 import { ShopModule } from './shop/shop.module';
+import { ProductsAddComponent } from './products-add/products-add.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import { ProductService } from './services/product.services';
 
 @NgModule({
   declarations: [ 
-    AppComponent,
+    AppComponent
   ],
   imports: [
     BrowserModule,
@@ -18,7 +21,8 @@ import { ShopModule } from './shop/shop.module';
     BrowserAnimationsModule,
     HttpClientModule,
     CoreModule,
-    ShopModule
+    ShopModule,
+
   ],
   providers: [],
   bootstrap: [AppComponent]

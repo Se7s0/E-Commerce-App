@@ -8,6 +8,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using API.Extentions;
+using Core.Interfaces;
+using Core.Entities;
 
 namespace API
 {
@@ -27,10 +29,11 @@ namespace API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAutoMapper(typeof(MappingProfiles));
+            services.AddAutoMapper(typeof(ProductMappingProfiles));
 
             // //choosing the lifetime, we have transient (method based mot request based) and sigleton(applkication based)
             // //here added the products repo to our services container 
-            // services.AddScoped<IProductRepository, ProductRepository>(); 
+            // services.AddScoped<IProductRepository, ProductRepository>();
 
             // //here we added the generic repository to our services container, it is slightly different than the normal repo
             // services.AddScoped(typeof(IGenericRepository<>), (typeof(GenericRepository<>)));

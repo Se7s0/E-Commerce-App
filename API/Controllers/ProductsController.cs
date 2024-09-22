@@ -95,5 +95,47 @@ namespace API.Controllers
 
             return Ok(await _productTypeRepo.ListAllAsync());
         }
+
+        [HttpPost]
+        public async Task<ActionResult<Product>> AddProduct(ProductDto productDto)
+        {
+            var product = _mapper.Map<ProductDto, Product>(productDto);
+
+            _productsRepo.Add(product);
+            await _productsRepo.SaveAsync();
+
+            return Ok(product);
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteProduct(int id)
+        {
+            var product = await _productsRepo.GetByIdAsync(id);
+
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            _productsRepo.Delete(product);
+            await _productsRepo.SaveAsync();
+
+            return NoContent();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProductPrice(int id, [FromBody] int newPrice)
+        {
+            var product = await _productsRepo.GetByIdAsync(id);
+            if (product == null) return NotFound();
+
+            product.Price = newPrice;
+            _productsRepo.Update(product);
+            await _productsRepo.SaveAsync();
+
+            return NoContent();
+        }
+
+        
     }
 }
